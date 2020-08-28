@@ -97,37 +97,42 @@ class Game extends Renderable{
             this.pad.y = PAD_START_Y;
         }
         //CHECK COLLISION BETWEEN BLOCKS AND BALL
-        for(let i=0;i<this.blocks.length;i++){
-            const block = this.blocks[i];
-            const collision = block.collidesWithCircleObject(this.ball);
-            if(collision){
-                const rx = block.x + block.w/2;
-                const ry = block.y + block.h/2;
-                const dx = this.ball.x - rx;
-                const dy = this.ball.y - ry;
-                const angle = Math.atan2(dy,dx);
-                const vx = BALL_VELOCITY * Math.cos(angle);
-                const vy = BALL_VELOCITY * Math.sin(angle);
-                //RESOLVE COLLISION VELOCITY
-                this.ball.setVelocity(vx,vy);
-                //REMOVE BLOCK FROM GAME
-                this.blocks.splice(i,1);
-                //EXIT FOR LOOP, NEEDED TO PREVENT ERRORS WHEN BLOCK IS REMOVED
-                break;                
+        if(!this.showText){
+            for(let i=0;i<this.blocks.length;i++){
+                const block = this.blocks[i];
+                const collision = block.collidesWithCircleObject(this.ball);
+                if(collision){
+                    const rx = block.x + block.w/2;
+                    const ry = block.y + block.h/2;
+                    const dx = this.ball.x - rx;
+                    const dy = this.ball.y - ry;
+                    const angle = Math.atan2(dy,dx);
+                    const vx = BALL_VELOCITY * Math.cos(angle);
+                    const vy = BALL_VELOCITY * Math.sin(angle);
+                    //RESOLVE COLLISION VELOCITY
+                    this.ball.setVelocity(vx,vy);
+                    //REMOVE BLOCK FROM GAME
+                    this.blocks.splice(i,1);
+                    //EXIT FOR LOOP, NEEDED TO PREVENT ERRORS WHEN BLOCK IS REMOVED
+                    break;                
+                }
             }
         }
+      
         //CHECK PAD COLLISION WITH BALL
-        const collision =  this.pad.collidesWithCircleObject(this.ball);
-        if(collision){
-                const rx = this.pad.x + this.pad.w/2;
-                const ry = this.pad.y + this.pad.h/2;
-                const dx = this.ball.x - rx;
-                const dy = this.ball.y - ry;
-                const angle = Math.atan2(dy,dx);
-                const vx = BALL_VELOCITY * Math.cos(angle);
-                const vy = BALL_VELOCITY * Math.sin(angle);
-                //RESOLVE COLLISION
-                this.ball.setVelocity(vx,vy);
+        if(!this.ball.attached){
+            const collision =  this.pad.collidesWithCircleObject(this.ball);
+            if(collision){
+                    const rx = this.pad.x + this.pad.w/2;
+                    const ry = this.pad.y + this.pad.h/2;
+                    const dx = this.ball.x - rx;
+                    const dy = this.ball.y - ry;
+                    const angle = Math.atan2(dy,dx);
+                    const vx = BALL_VELOCITY * Math.cos(angle);
+                    const vy = BALL_VELOCITY * Math.sin(angle);
+                    //RESOLVE COLLISION
+                    this.ball.setVelocity(vx,vy);
+            }
         }
         //MOVE BALL WITH PAD IF ATTACHED
         if(this.ball.attached){
@@ -192,7 +197,7 @@ class Collidable extends GameObject {
         const distance = dx*dx + dy*dy;
         const rSqr = (object.w/2) ** 2;
         if(distance <= rSqr){
-            return true //angulo de colision
+            return true 
         }
         return false;
     }
