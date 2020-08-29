@@ -92,6 +92,7 @@ class Game extends Renderable{
         this.showText = true;
         this.gameOver = false;
         this.lives = 3;
+        this.cheatsEnabled = false;
     }
 
     launchBall(){
