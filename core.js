@@ -41,6 +41,8 @@ class Game extends Renderable{
         this.pad = new Pad(PAD_START_X,PAD_START_Y);
 
         this.showText = true;
+        this.gameOver = false;
+        this.lives = 3;
     }
 
     createLayout(){
@@ -60,22 +62,44 @@ class Game extends Renderable{
     keyPressed(code){
         //SPACE KEY
         if(code === 32){
+            if(this.gameOver){
+                this.resetGame();
+                return;
+            }
             if(this.ball.attached){
                this.launchBall();
                this.showText = false;
             }
         }
     }
+    
+    resetGame(){
+        this.blocks = [];
+        //create ball
+        this.ball = new Ball(BALL_START_X,BALL_START_Y,BALL_RADIUS);
+        //create game layout
+        this.createLayout();
+        //create pad     
+        this.pad = new Pad(PAD_START_X,PAD_START_Y);
+       
+        this.showText = true;
+        this.gameOver = false;
+        this.lives = 3;
+    }
 
     launchBall(){
         this.ball.attached = false;
-        this.ball.applyVelocityWithAngle(BALL_VELOCITY,Math.random() * -Math.PI);
+        //generate angle between PI/4 and 3/4 PI 
+        const angle = Math.floor((Math.random() * (3*PI/4))) + PI/4;
+        this.ball.applyVelocityWithAngle(BALL_VELOCITY,-angle);
     }
     //UPDATE CYCLE
     //  HANDLE KEYBOARD
     //  HANDLE PHYSICS
     //  HANDLE COLLISIONS
     update(dt){
+        //Exit update loop if game is already over
+        if(this.gameOver) return;
         //Update pad position
         if(keyIsDown(KEY_A)){
             this.pad.x += -PAD_SPEED * dt;
@@ -95,6 +119,12 @@ class Game extends Renderable{
             this.ball.reset();
             this.pad.x = PAD_START_X;
             this.pad.y = PAD_START_Y;
+            this.ball.attach(this.pad);
+            this.lives--;
+            if(this.lives <= 0) {
+                this.gameOver = true;
+                return;
+            }
         }
         //CHECK COLLISION BETWEEN BLOCKS AND BALL
         if(!this.showText){
@@ -116,6 +146,11 @@ class Game extends Renderable{
                     //EXIT FOR LOOP, NEEDED TO PREVENT ERRORS WHEN BLOCK IS REMOVED
                     break;                
                 }
+            }
+            //Winning condition
+            if(this.blocks.length === 0){
+                this.gameOver = true;
+                return;
             }
         }
       
@@ -152,14 +187,36 @@ class Game extends Renderable{
         for(let block of this.blocks){
             block.render();
         }
-        this.pad.render();
         this.ball.render();
+        this.pad.render();
+        
         if(this.showText){
             fill(0,0,frameCount%100);
             textSize(50);
             textAlign(CENTER,CENTER)
             text("Press SPACE to begin",GAME_WIDTH/2,GAME_HEIGHT/2)
-        }        
+        }
+        if(this.gameOver){
+            if( this.lives <= 0 ){
+                textSize(50);
+                fill(0,0,100);
+                textAlign(CENTER,CENTER)
+                text("You loose SPACE to restart",GAME_WIDTH/2,GAME_HEIGHT/2)
+            }else{              
+                if(this.blocks.length === 0){
+                textSize(50);
+                fill(0,0,frameCount%100);
+                textAlign(CENTER,CENTER)
+                text("You WIN Congrats !!!",GAME_WIDTH/2,GAME_HEIGHT/2)
+                }
+            }
+        }
+        textSize(50);
+        fill(0,100,50);
+        //textAlign(LEFT,LEFT); 
+        for(let i=0;i<this.lives;i++){
+            text("❤",50+i*50,50);
+        }
     }
 }
 
