@@ -58,6 +58,13 @@ class Game extends Renderable{
             }    
         }
     }
+    
+    enableCheats(){
+        this.lives = 45;
+        this.cheatsEnabled = true;
+    }
+    
+
     //handler for key press
     keyPressed(code){
         //SPACE KEY
@@ -116,6 +123,12 @@ class Game extends Renderable{
 
         //HANDLE BALL OUTSIDE OF WINDOW
         if(this.ball.y - this.ball.w/2  > GAME_HEIGHT){
+            if(this.cheatsEnabled){
+                this.ball.y = GAME_HEIGHT - this.ball.w/2;
+                this.ball.applyVelocity(0,this.ball.velocity.y * -2);
+               // noLoop();
+                return;
+            }
             this.ball.reset();
             this.pad.x = PAD_START_X;
             this.pad.y = PAD_START_Y;
@@ -215,7 +228,9 @@ class Game extends Renderable{
         fill(0,100,50);
         //textAlign(LEFT,LEFT); 
         for(let i=0;i<this.lives;i++){
-            text("❤",50+i*50,50);
+            const x = 50*(i%15);
+            const y = Math.floor(i/15) * 50;
+            text("❤",50 + x,y + 35);
         }
     }
 }
@@ -374,4 +389,8 @@ function draw(){
 
 function keyPressed() {
     game.keyPressed(keyCode);
+}
+
+function godMode(){
+    game.enableCheats();
 }
